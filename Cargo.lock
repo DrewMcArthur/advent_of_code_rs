@@ -12,6 +12,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc2024d4"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "day1"
 version = "0.1.0"
 
