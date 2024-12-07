@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use day7::{concat, Equation};
 
@@ -50,7 +52,7 @@ criterion_group! {
 
 criterion_group! {
     name = solve;
-    config = Criterion::default();
+    config = Criterion::default().measurement_time(Duration::from_secs(10));
     targets = bench_solve
 }
 

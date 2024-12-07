@@ -31,15 +31,15 @@ impl Equation {
 
     fn apply(&self, solution: &[Op]) -> i64 {
         assert!(solution.len() == self.rhs.len() - 1);
-        let mut res = self.rhs[0];
-        for (i, op) in solution.iter().enumerate() {
-            res = match op {
-                Op::Add => res + self.rhs[i + 1],
-                Op::Mul => res * self.rhs[i + 1],
-                Op::Cat => concat(res, self.rhs[i + 1]),
+        let init = self.rhs[0];
+        solution.iter().enumerate().fold(init, |acc, (i, op)| {
+            let r = self.rhs[i + 1];
+            match op {
+                Op::Add => acc + r,
+                Op::Mul => acc * r,
+                Op::Cat => concat(acc, r),
             }
-        }
-        res
+        })
     }
 }
 
