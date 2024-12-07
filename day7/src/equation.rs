@@ -10,7 +10,7 @@ pub enum Op {
     Cat,
 }
 
-pub fn compute(data: &Vec<Equation>, ops: &[Op]) -> i64 {
+pub fn compute(data: &[Equation], ops: &[Op]) -> i64 {
     data.iter()
         .filter(|e| e.has_solution(ops))
         .map(|e| e.res)
@@ -24,15 +24,12 @@ impl Equation {
 
     fn solve(&self, operators: &[Op]) -> Option<Vec<Op>> {
         let solutions: Vec<Vec<Op>> = perms(operators, self.rhs.len() - 1);
-        for solution in solutions {
-            if self.apply(&solution) == self.res {
-                return Some(solution);
-            }
-        }
-        None
+        solutions
+            .into_iter()
+            .find(|solution| self.apply(solution) == self.res)
     }
 
-    fn apply(&self, solution: &Vec<Op>) -> i64 {
+    fn apply(&self, solution: &[Op]) -> i64 {
         assert!(solution.len() == self.rhs.len() - 1);
         let mut res = self.rhs[0];
         for (i, op) in solution.iter().enumerate() {
@@ -53,7 +50,7 @@ fn perms(ops: &[Op], n: usize) -> Vec<Vec<Op>> {
     let mut res = Vec::new();
     for op in ops.iter() {
         for mut sol in perms(ops, n - 1) {
-            sol.insert(0, op.clone());
+            sol.insert(0, *op);
             res.push(sol);
         }
     }

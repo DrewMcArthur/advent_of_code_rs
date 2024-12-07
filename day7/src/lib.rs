@@ -13,10 +13,10 @@ pub fn load_input() -> Vec<Equation> {
     contents.split("\n").map(Equation::from).collect()
 }
 
-pub fn p1(data: &Vec<Equation>) -> i64 {
-    compute(&data, &[Op::Add, Op::Mul])
+pub fn p1(data: &[Equation]) -> i64 {
+    compute(data, &[Op::Add, Op::Mul])
 }
 
-pub fn p2(data: &Vec<Equation>) -> i64 {
-    compute(&data, &[Op::Add, Op::Mul, Op::Cat])
+pub fn p2(data: &[Equation]) -> i64 {
+    compute(data, &[Op::Add, Op::Mul, Op::Cat])
 }
