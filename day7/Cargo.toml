@@ -3,4 +3,10 @@ name = "day7"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[dev-dependencies]
+criterion = "0.5.1"
+
+
+[[bench]]
+name = "bench_concat"
+harness = false

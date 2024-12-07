@@ -10,8 +10,15 @@ pub enum Op {
     Cat,
 }
 
+pub fn compute(data: &Vec<Equation>, ops: &[Op]) -> i64 {
+    data.iter()
+        .filter(|e| e.has_solution(ops))
+        .map(|e| e.res)
+        .sum()
+}
+
 impl Equation {
-    pub fn has_solution(&self, ops: &[Op]) -> bool {
+    fn has_solution(&self, ops: &[Op]) -> bool {
         self.solve(ops).is_some()
     }
 
@@ -53,7 +60,7 @@ fn perms(ops: &[Op], n: usize) -> Vec<Vec<Op>> {
     res
 }
 
-fn concat(a: i64, b: i64) -> i64 {
+pub fn concat(a: i64, b: i64) -> i64 {
     let n_digits = b.checked_ilog10().unwrap_or(0) + 1;
     a * 10_i64.pow(n_digits) + b
 }
