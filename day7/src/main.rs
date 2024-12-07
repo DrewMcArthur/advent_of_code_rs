@@ -5,8 +5,13 @@ mod equation;
 use equation::Equation;
 
 fn main() {
-    println!("Hello, world!");
     let data = load_input();
+    let p1: i64 = data
+        .iter()
+        .filter(|e| e.has_solution())
+        .map(|e| e.res)
+        .sum();
+    println!("Part 1: {}", p1);
 }
 fn load_input() -> Vec<Equation> {
     let mut file = std::fs::File::open("input.txt").unwrap();
