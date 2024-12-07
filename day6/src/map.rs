@@ -7,11 +7,10 @@ use crate::location::{Location, MaybeLocation};
 
 #[derive(Clone)]
 pub struct Map {
-    rows: Vec<Row>,
+    data: HashMap<Location, char>,
+    width: usize,
+    height: usize,
 }
-
-#[derive(Clone)]
-struct Row(HashMap<usize, char>); // maybe just a string?
 
 impl From<&mut File> for Map {
     fn from(file: &mut File) -> Map {
@@ -23,30 +22,33 @@ impl From<&mut File> for Map {
 
 impl From<String> for Map {
     fn from(s: String) -> Map {
-        let rows = s.split("\n").map(Row::from).collect();
-        Map { rows }
-    }
-}
-
-impl From<&str> for Row {
-    fn from(row: &str) -> Row {
-        Row(row.chars().enumerate().collect())
+        let rows: Vec<&str> = s.split("\n").collect();
+        let data = rows
+            .iter()
+            .enumerate()
+            .flat_map(|(y, r)| {
+                r.chars()
+                    .enumerate()
+                    .map(|(x, c)| (Location { x, y }, c))
+                    .collect::<Vec<(Location, char)>>()
+            })
+            .collect();
+        Map {
+            data,
+            height: rows.len(),
+            width: rows[0].len(),
+        }
     }
 }
 
 impl Map {
     pub fn find_guard(&self) -> Option<Location> {
-        match self
-            .rows
+        self.data
             .iter()
-            .enumerate()
-            .find(|(_, r)| r.has_guard())
-            .map(|(y, r)| (y, r.find_guard()))
-        {
-            None => None,
-            Some((_, None)) => panic!("unreachable, returned a row with no guard"),
-            Some((y, Some(x))) => Some(Location { x, y }),
-        }
+            .filter(|(_, c)| Guard::is_guard(c))
+            .map(|(loc, _)| loc)
+            .next()
+            .map(|l| l.clone())
     }
 
     pub fn check_in_bounds(&self, loc: &MaybeLocation) -> Result<(), GoError> {
@@ -55,9 +57,9 @@ impl Map {
             Err(GoError::OutOfBounds(crate::direction::Direction::Left))
         } else if y < 0 {
             Err(GoError::OutOfBounds(crate::direction::Direction::Up))
-        } else if y >= self.rows.len() as i32 {
+        } else if y >= self.height() as i32 {
             Err(GoError::OutOfBounds(crate::direction::Direction::Down))
-        } else if x >= self.rows[0].0.len() as i32 {
+        } else if x >= self.width() as i32 {
             Err(GoError::OutOfBounds(crate::direction::Direction::Right))
         } else {
             Ok(())
@@ -69,42 +71,20 @@ impl Map {
         Ok(self.char_at(&loc.try_into()?))
     }
 
-    pub fn set_char_at(&mut self, loc: &Location, c: char) {
-        self.rows[loc.y].set_char_at(loc.x, c);
+    pub fn set_char_at(&mut self, loc: Location, c: char) {
+        self.data.insert(loc, c);
     }
 
     pub fn char_at(&self, loc: &Location) -> char {
-        self.rows[loc.y].char_at(loc.x)
+        *self.data.get(loc).unwrap()
     }
 
     pub fn height(&self) -> usize {
-        self.rows.len()
+        self.height
     }
 
     pub fn width(&self) -> usize {
-        self.rows[0].0.len()
-    }
-}
-
-impl Row {
-    fn set_char_at(&mut self, x: usize, c: char) {
-        self.0.insert(x, c);
-    }
-
-    fn char_at(&self, x: usize) -> char {
-        *self.0.get(&x).unwrap()
-    }
-
-    fn has_guard(&self) -> bool {
-        self.0.values().any(Guard::is_guard)
-    }
-
-    fn find_guard(&self) -> Option<usize> {
-        self.0
-            .iter()
-            .filter(|(_, c)| Guard::is_guard(c))
-            .next()
-            .map(|(x, _)| *x)
+        self.width
     }
 }
 
@@ -113,33 +93,6 @@ mod tests {
     use crate::direction::Direction;
 
     use super::*;
-
-    #[test]
-    fn row() {
-        let row = Row::from("abc");
-        assert_eq!(row.char_at(0), 'a');
-        assert_eq!(row.char_at(1), 'b');
-        assert_eq!(row.char_at(2), 'c');
-    }
-
-    #[test]
-    fn row_find_guard() {
-        let row = Row::from("abc");
-        assert!(!row.has_guard());
-        assert_eq!(row.find_guard(), None);
-
-        let rows = vec![
-            Row::from("avc"),
-            Row::from("aVc"),
-            Row::from("a<c"),
-            Row::from("a>c"),
-            Row::from("a^c"),
-        ];
-        for row in rows {
-            assert!(row.has_guard());
-            assert_eq!(row.find_guard(), Some(1));
-        }
-    }
 
     #[test]
     fn in_bounds() {

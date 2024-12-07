@@ -44,7 +44,7 @@ pub struct Vector {
 
 impl<'a> From<&'a Map> for Guard<'a> {
     fn from(map: &Map) -> Guard {
-        let loc = map.find_guard().expect("no guard found");
+        let loc = map.find_guard().expect("no guard found").clone();
         let dir = map.char_at(&loc).into();
         let current = Vector { loc, dir };
         let history = LocationHistory::start(current);
