@@ -48,7 +48,7 @@ impl Map {
             .filter(|(_, c)| Guard::is_guard(c))
             .map(|(loc, _)| loc)
             .next()
-            .map(|l| l.clone())
+            .copied()
     }
 
     pub fn check_in_bounds(&self, loc: &MaybeLocation) -> Result<(), GoError> {

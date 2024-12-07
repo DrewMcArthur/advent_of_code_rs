@@ -27,24 +27,30 @@ fn p2() {
     println!("Part 2: {}", matches);
 }
 
-fn has_xmas(chunk: &Vec<Vec<char>>) -> bool {
-    let a = vec![chunk[0][0], chunk[1][1], chunk[2][2]];
-    let b = vec![chunk[0][2], chunk[1][1], chunk[2][0]];
-    let c: Vec<char> = "MAS".chars().collect();
-    let d: Vec<char> = "SAM".chars().collect();
-    return (a == c || a == d) && (b == c || b == d);
+fn has_xmas(chunk: &Chunk) -> bool {
+    let chunk = chunk.0;
+
+    let a = [chunk[0][0], chunk[1][1], chunk[2][2]];
+    let b = [chunk[0][2], chunk[1][1], chunk[2][0]];
+
+    let c: [char; 3] = ['M', 'A', 'S'];
+    let d: [char; 3] = ['S', 'A', 'M'];
+
+    (a == c || a == d) && (b == c || b == d)
 }
 
-fn get_chunks(grid: Vec<String>) -> Vec<Vec<Vec<char>>> {
+struct Chunk([[char; 3]; 3]);
+
+fn get_chunks(grid: Vec<String>) -> Vec<Chunk> {
     let grid: Vec<Vec<char>> = grid.iter().map(|r| r.chars().collect()).collect();
-    let mut chunks: Vec<Vec<Vec<char>>> = Vec::new();
+    let mut chunks: Vec<Chunk> = Vec::new();
     for i in 0..grid.len() - 2 {
         for j in 0..grid[i].len() - 2 {
-            let chunk = vec![
-                vec![grid[i][j], grid[i][j + 1], grid[i][j + 2]],
-                vec![grid[i + 1][j], grid[i + 1][j + 1], grid[i + 1][j + 2]],
-                vec![grid[i + 2][j], grid[i + 2][j + 1], grid[i + 2][j + 2]],
-            ];
+            let chunk = Chunk([
+                [grid[i][j], grid[i][j + 1], grid[i][j + 2]],
+                [grid[i + 1][j], grid[i + 1][j + 1], grid[i + 1][j + 2]],
+                [grid[i + 2][j], grid[i + 2][j + 1], grid[i + 2][j + 2]],
+            ]);
             chunks.push(chunk);
         }
     }
@@ -122,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_rotate() {
-        let rows = vec!["abc", "def", "ghi"];
+        let rows = ["abc", "def", "ghi"];
         let rows: Vec<String> = rows.iter().map(|s| s.to_string()).collect();
         print_grid(&rows);
         print_grid(&rotate_n(rows.clone(), 1));
@@ -130,16 +136,16 @@ mod tests {
         print_grid(&rotate_n(rows.clone(), 3));
         assert_eq!(rotate_n(rows.clone(), 0), rows);
         assert_eq!(rotate_n(rows.clone(), 4), rows);
-        assert_eq!(rotate_n(rows.clone(), 1), vec!["gda", "heb", "ifc"]);
-        assert_eq!(rotate_n(rows.clone(), 2), vec!["ihg", "fed", "cba"]);
-        assert_eq!(rotate_n(rows.clone(), 3), vec!["cfi", "beh", "adg"]);
+        assert_eq!(rotate_n(rows.clone(), 1), ["gda", "heb", "ifc"]);
+        assert_eq!(rotate_n(rows.clone(), 2), ["ihg", "fed", "cba"]);
+        assert_eq!(rotate_n(rows.clone(), 3), ["cfi", "beh", "adg"]);
     }
 
     #[test]
     fn test_rotate_diag() {
-        let rows = vec!["abc", "def", "ghi"];
+        let rows = ["abc", "def", "ghi"];
         let rows: Vec<String> = rows.iter().map(|s| s.to_string()).collect();
-        let rotated = vec!["..a", ".db", "gec", "hf.", "i.."];
+        let rotated = ["..a", ".db", "gec", "hf.", "i.."];
         print_grid(&rows);
         print_grid(&rotated.iter().map(|s| s.to_string()).collect());
         print_grid(&rotate_diag(rows.clone()));
@@ -149,9 +155,9 @@ mod tests {
 
     #[test]
     fn test_reverse_diag() {
-        let rows = vec!["abc", "def", "ghi"];
+        let rows = ["abc", "def", "ghi"];
         let rows: Vec<String> = rows.iter().map(|s| s.to_string()).collect();
-        let rotated = vec!["..c", ".bf", "aei", "dh.", "g.."];
+        let rotated = ["..c", ".bf", "aei", "dh.", "g.."];
         print_grid(&rows);
         print_grid(&rotated.iter().map(|s| s.to_string()).collect());
         print_grid(&rotate_diag(rows.clone()));
@@ -160,11 +166,11 @@ mod tests {
 
     #[test]
     fn test_all() {
-        let rows = vec!["abc", "def", "ghi"];
+        let rows = ["abc", "def", "ghi"];
         let rows = rows.iter().map(|s| s.to_string()).collect();
         let grids = get_rotations(rows);
         let rows: Vec<&String> = grids.iter().flat_map(|g| g.iter()).collect();
-        let expected_strs = vec!["abc", "cba", "gec", "aei", "gda", "adg"];
+        let expected_strs = ["abc", "cba", "gec", "aei", "gda", "adg"];
         for s in expected_strs {
             assert!(rows.contains(&&s.to_string()), "s: {}", s);
             assert!(

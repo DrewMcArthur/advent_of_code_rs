@@ -16,7 +16,6 @@ fn main() {
     let start = Instant::now();
     let sections = input
         .split("do()")
-        .into_iter()
         .map(|s| s.split("don't()").collect::<Vec<&str>>()[0].to_string())
         .collect::<Vec<String>>();
 
@@ -30,7 +29,7 @@ fn main() {
 }
 
 fn get_total(rx: &Regex, input: &str) -> i32 {
-    rx.captures_iter(input).into_iter().fold(0, |acc, cap| {
+    rx.captures_iter(input).fold(0, |acc, cap| {
         let a: i32 = cap[1].parse().unwrap();
         let b: i32 = cap[2].parse().unwrap();
         acc + a * b

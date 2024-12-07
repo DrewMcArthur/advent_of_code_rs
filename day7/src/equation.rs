@@ -124,8 +124,8 @@ mod tests {
             res: 123,
             rhs: vec![1, 2, 3],
         };
-        assert_eq!(eq.apply(&vec![Op::Add, Op::Add]), 6);
-        assert_eq!(eq.apply(&vec![Op::Add, Op::Mul]), 9);
-        assert_eq!(eq.apply(&vec![Op::Mul, Op::Add]), 5);
+        assert_eq!(eq.apply(&[Op::Add, Op::Add]), 6);
+        assert_eq!(eq.apply(&[Op::Add, Op::Mul]), 9);
+        assert_eq!(eq.apply(&[Op::Mul, Op::Add]), 5);
     }
 }

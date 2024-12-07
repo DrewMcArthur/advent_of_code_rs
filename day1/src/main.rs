@@ -27,7 +27,7 @@ fn get_input() -> (Vec<i32>, Vec<i32>) {
     file.read_to_string(&mut contents).unwrap();
     let mut l1 = Vec::new();
     let mut l2 = Vec::new();
-    contents.split("\n").into_iter().for_each(|line| {
+    contents.split("\n").for_each(|line| {
         let mut line = line.split("   ");
         let val = line.next().unwrap();
         let val = val.trim().parse().expect("couldn't parse val: {val}");

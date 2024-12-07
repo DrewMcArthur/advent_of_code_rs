@@ -97,7 +97,7 @@ fn parse_input(lines: Vec<String>) -> (Rules, Vec<Update>) {
     let mut rules = Rules(HashMap::new());
     let mut updates = Vec::new();
     for line in lines {
-        if line == "" {
+        if line.is_empty() {
             in_rules_section = false;
             continue;
         }
@@ -119,7 +119,7 @@ fn follows_rules(rules: &Rules, update: &Update) -> bool {
             let follows = update.get_pages_before(i);
             let should_follow: Vec<&String> =
                 prereqs.iter().filter(|s| update.contains(s)).collect();
-            if should_follow.iter().any(|s| !follows.contains(&s)) {
+            if should_follow.iter().any(|s| !follows.contains(s)) {
                 debug!(
                     "{:?} doesn't follow at {} because {} should follow {:?}",
                     update,
@@ -131,7 +131,7 @@ fn follows_rules(rules: &Rules, update: &Update) -> bool {
             }
         }
     }
-    return true;
+    true
 }
 
 /// reorders the update so that it follows the rules
@@ -155,7 +155,7 @@ fn fix_update(rules: &Rules, update: &Update) -> Update {
             .map(|n| (n, remaining_requirements(n, &new_update)))
             .collect();
 
-        if requirements.len() == 0 {
+        if requirements.is_empty() {
             // no more requirements, done!
             return new_update;
         }
@@ -163,11 +163,11 @@ fn fix_update(rules: &Rules, update: &Update) -> Update {
         // get any numbers with zero remaining requirements
         let mut next: Vec<String> = requirements
             .iter()
-            .filter(|(_, v)| v.len() == 0)
+            .filter(|(_, v)| v.is_empty())
             .map(|(k, _)| k.to_string())
             .collect();
 
-        if next.len() == 0 {
+        if next.is_empty() {
             // if we still have requirements but nothing can be added, we panic
             panic!(
                 "no solution for {:?} with rules: {:?}",

@@ -44,7 +44,7 @@ pub struct Vector {
 
 impl<'a> From<&'a Map> for Guard<'a> {
     fn from(map: &Map) -> Guard {
-        let loc = map.find_guard().expect("no guard found").clone();
+        let loc = map.find_guard().expect("no guard found");
         let dir = map.char_at(&loc).into();
         let current = Vector { loc, dir };
         let history = LocationHistory::start(current);
@@ -56,7 +56,7 @@ impl<'a> From<&'a Map> for Guard<'a> {
     }
 }
 
-impl<'a> Guard<'a> {
+impl Guard<'_> {
     pub fn is_guard(c: &char) -> bool {
         GUARD_CHARS.contains(c)
     }
@@ -68,7 +68,7 @@ impl<'a> Guard<'a> {
             Direction::Down => Direction::Left,
             Direction::Left => Direction::Up,
         };
-        self.history.push(self.current.clone())?;
+        self.history.push(self.current)?;
         Ok(())
     }
 
@@ -77,7 +77,7 @@ impl<'a> Guard<'a> {
     // to be able to correctly throw "stuck in loop" error
     // if location_history.contains(new_loc) { return Err(GoError::StuckInLoop) }
     pub fn step(&mut self) -> Result<(), GoError> {
-        let old = self.current.loc.clone();
+        let old = self.current.loc;
         let new = old.move_in(self.current.dir);
 
         match self.map.try_char_at(new)? {
@@ -86,7 +86,7 @@ impl<'a> Guard<'a> {
             }
             c if self.can_move_to(c) => {
                 self.current.loc = new.try_into()?;
-                self.history.push(self.current.clone())?;
+                self.history.push(self.current)?;
             }
             c => return Err(GoError::UnknownChar(c)),
         }
@@ -232,7 +232,7 @@ mod tests {
         ];
         loop {
             assert_eq!(guard.current, history[i]);
-            i = i + 1;
+            i += 1;
             if let Err(e) = guard.step() {
                 assert_eq!(guard.history.0.len(), history.len());
                 assert_eq!(

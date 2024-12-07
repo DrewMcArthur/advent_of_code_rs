@@ -32,7 +32,7 @@ fn loc_causes_loop(loc: &Location, map: &mut Map) -> bool {
     if Guard::is_guard(&c) || c == '#' {
         return false;
     }
-    map.set_char_at(loc.clone(), '#');
+    map.set_char_at(*loc, '#');
     let res;
     let mut guard = Guard::from(&*map);
     loop {
@@ -48,6 +48,6 @@ fn loc_causes_loop(loc: &Location, map: &mut Map) -> bool {
             }
         }
     }
-    map.set_char_at(loc.clone(), c);
+    map.set_char_at(*loc, c);
     res
 }

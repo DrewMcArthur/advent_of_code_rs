@@ -11,18 +11,15 @@ fn main() {
     println!("Valid dampened reports: {}", valid_dampened_reports);
 }
 
-fn is_safe_dampened(report: &Vec<i32>) -> bool {
-    for i in 0..report.len() {
-        let mut new = report.clone();
+fn is_safe_dampened(report: &[i32]) -> bool {
+    report.iter().enumerate().any(|(i, _)| {
+        let mut new = report.to_owned();
         new.remove(i);
-        if is_safe(&new) {
-            return true;
-        }
-    }
-    return false;
+        is_safe(&new)
+    })
 }
 
-fn is_safe(report: &Vec<i32>) -> bool {
+fn is_safe(report: &[i32]) -> bool {
     let mut increasing = Option::None;
     for i in 0..report.len() - 1 {
         let a = report[i];
@@ -48,7 +45,7 @@ fn is_safe(report: &Vec<i32>) -> bool {
             return false;
         }
     }
-    return true;
+    true
 }
 
 fn get_input() -> Vec<Vec<i32>> {
@@ -56,7 +53,6 @@ fn get_input() -> Vec<Vec<i32>> {
     let reader = BufReader::new(file);
     let reports = reader
         .lines()
-        .into_iter()
         .map(|l| {
             let line = l.expect("error reading line");
             let level = line.split(" ");
