@@ -54,11 +54,8 @@ fn perms(ops: &[Op], n: usize) -> Vec<Vec<Op>> {
 }
 
 fn concat(a: i64, b: i64) -> i64 {
-    let a = a.to_string();
-    let b = b.to_string();
-    let mut res = a.chars().collect::<Vec<char>>();
-    res.append(&mut b.chars().collect());
-    res.iter().collect::<String>().parse().unwrap()
+    let n_digits = b.checked_ilog10().unwrap_or(0) + 1;
+    a * 10_i64.pow(n_digits) + b
 }
 
 impl From<&str> for Equation {
