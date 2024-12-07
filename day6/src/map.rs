@@ -125,6 +125,7 @@ mod tests {
         let map = Map::from("abc\ndef\n.>i".to_string());
         assert_eq!(map.find_guard(), Some(Location { x: 1, y: 2 }));
 
+        // undefined behavior now that we're storing chars by location in a hashmap
         let map = Map::from("^bc\ndef\n<gi".to_string());
         let guard_loc = map.find_guard().unwrap();
         assert!(guard_loc == Location { x: 0, y: 0 } || guard_loc == Location { x: 0, y: 2 });
