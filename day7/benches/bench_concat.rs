@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use day7::concat;
+use day7::{concat, Equation};
 
 // this is about 30x slower
 fn old_concat(a: i64, b: i64) -> i64 {
@@ -26,7 +26,16 @@ pub fn bench_old_concat(c: &mut Criterion) {
 }
 
 pub fn bench_solve(c: &mut Criterion) {
-    let data = day7::load_input();
+    let data = [
+        Equation::from("123: 1 2 3"),
+        Equation::from("456: 4 5 6"),
+        Equation::from("789: 7 8 9"),
+        Equation::from("101112: 10 11 12"),
+        Equation::from("131415: 13 14 15"),
+        Equation::from("161718: 16 17 18"),
+        Equation::from("192021: 19 20 21"),
+        Equation::from("1: 10 112 15 2 324 12 23 4 234 23 423"),
+    ];
     c.bench_function("solve", |b| {
         b.iter(|| {
             let _ = day7::p2(&data);
@@ -43,7 +52,7 @@ criterion_group! {
 
 criterion_group! {
     name = solve;
-    config = Criterion::default().sample_size(10).measurement_time(Duration::from_secs(60));
+    config = Criterion::default();
     targets = bench_solve
 }
 

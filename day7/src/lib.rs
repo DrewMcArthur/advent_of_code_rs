@@ -2,9 +2,10 @@ use std::io::Read;
 
 mod equation;
 
+use equation::compute;
 pub use equation::concat;
+pub use equation::Equation;
 use equation::Op;
-use equation::{compute, Equation};
 
 pub fn load_input() -> Vec<Equation> {
     let mut file = std::fs::File::open("input.txt").unwrap();
