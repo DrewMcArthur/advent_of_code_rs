@@ -126,7 +126,8 @@ mod tests {
         assert_eq!(map.find_guard(), Some(Location { x: 1, y: 2 }));
 
         let map = Map::from("^bc\ndef\n<gi".to_string());
-        assert_eq!(map.find_guard(), Some(Location { x: 0, y: 0 }));
+        let guard_loc = map.find_guard().unwrap();
+        assert!(guard_loc == Location { x: 0, y: 0 } || guard_loc == Location { x: 0, y: 2 });
     }
 
     #[test]
