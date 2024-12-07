@@ -4,18 +4,19 @@ pub struct Equation {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Op {
+pub enum Op {
     Add,
     Mul,
+    Cat,
 }
 
 impl Equation {
-    pub fn has_solution(&self) -> bool {
-        self.solve().is_some()
+    pub fn has_solution(&self, ops: &[Op]) -> bool {
+        self.solve(ops).is_some()
     }
 
-    fn solve(&self) -> Option<Vec<Op>> {
-        let solutions: Vec<Vec<Op>> = perms(&[Op::Add, Op::Mul], self.rhs.len() - 1);
+    fn solve(&self, operators: &[Op]) -> Option<Vec<Op>> {
+        let solutions: Vec<Vec<Op>> = perms(operators, self.rhs.len() - 1);
         for solution in solutions {
             if self.apply(&solution) == self.res {
                 return Some(solution);
@@ -31,6 +32,7 @@ impl Equation {
             res = match op {
                 Op::Add => res + self.rhs[i + 1],
                 Op::Mul => res * self.rhs[i + 1],
+                Op::Cat => concat(res, self.rhs[i + 1]),
             }
         }
         res
@@ -49,6 +51,14 @@ fn perms(ops: &[Op], n: usize) -> Vec<Vec<Op>> {
         }
     }
     res
+}
+
+fn concat(a: i64, b: i64) -> i64 {
+    let a = a.to_string();
+    let b = b.to_string();
+    let mut res = a.chars().collect::<Vec<char>>();
+    res.append(&mut b.chars().collect());
+    res.iter().collect::<String>().parse().unwrap()
 }
 
 impl From<&str> for Equation {
@@ -99,6 +109,12 @@ mod tests {
                 vec![Op::Mul, Op::Mul, Op::Mul]
             ]
         );
+    }
+
+    #[test]
+    fn test_concat() {
+        assert_eq!(concat(123, 456), 123456);
+        assert_eq!(concat(456, 123), 456123);
     }
 
     #[test]
