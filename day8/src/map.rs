@@ -61,61 +61,52 @@ impl Map {
     pub fn find_first_antinode_locs(&self) -> HashSet<Loc> {
         self.find_pairs()
             .iter()
-            .flat_map(|(_, pairs)| {
-                pairs
-                    .iter()
-                    .map(|p| get_first_antinode_locs(p))
-                    .flatten()
-                    .filter_map(|l| l)
-                    .filter(|l| self.is_in_bounds(l))
-            })
+            .map(|p| get_first_antinode_locs(p))
+            .flatten()
+            .filter_map(|l| l)
+            .filter(|l| self.is_in_bounds(l))
             .collect()
     }
 
     pub fn find_all_antinode_locs(&self) -> HashSet<Loc> {
         self.find_pairs()
             .iter()
-            .flat_map(|(_, pairs)| {
-                pairs
-                    .iter()
-                    .map(|p| {
-                        get_all_antinode_locs_in_bounds(
-                            p.first(),
-                            p.second(),
-                            (self.width, self.height),
-                        )
-                        .iter()
-                        .chain(
-                            get_all_antinode_locs_in_bounds(
-                                p.second(),
-                                p.first(),
-                                (self.width, self.height),
-                            )
-                            .iter(),
-                        )
-                        .map(|l| *l)
-                        .collect::<Vec<Loc>>()
-                    })
-                    .flatten()
-                // .filter(|l| self.is_in_bounds(l))
+            .flat_map(|p| {
+                get_all_antinode_locs_in_bounds(
+                    p.first(),
+                    p.second(),
+                    (self.width, self.height),
+                )
+                .iter()
+                .chain(
+                    get_all_antinode_locs_in_bounds(
+                        p.second(),
+                        p.first(),
+                        (self.width, self.height),
+                    )
+                    .iter(),
+                )
+                .map(|l| *l)
+                .collect::<Vec<Loc>>()
             })
             .collect()
     }
 
     /// returns a vector of pairs of locations of matching types
-    fn find_pairs(&self) -> HashMap<char, HashSet<AntennaPair>> {
+    fn find_pairs(&self) -> HashSet<AntennaPair> {
+        fn find_pairs(antennae: &Vec<Loc>) -> Vec<AntennaPair> {
+            perms(antennae, 2)
+                .iter()
+                .filter(|locs| locs[0] != locs[1])
+                .map(move |locs| AntennaPair::new(locs[0], locs[1]))
+                .collect::<Vec<AntennaPair>>()
+        }
+
+        // we only want to find pairs for antennae of the same type
+        // so we find pairs within each list
         self.antennae
-            .iter()
-            .map(|(c, locs)| {
-                (
-                    *c,
-                    perms(locs, 2)
-                        .iter()
-                        .filter(|locs| locs[0] != locs[1])
-                        .map(move |locs| AntennaPair::new(locs[0], locs[1]))
-                        .collect::<HashSet<AntennaPair>>(),
-                )
-            })
+            .values()
+            .flat_map(|locs| find_pairs(locs))
             .collect()
     }
 
@@ -171,10 +162,7 @@ mod tests {
     fn test_find_pairs() {
         let map = load_input("test_input.txt");
         let pairs = map.find_pairs();
-        assert_eq!(pairs.len(), 2);
-        assert_eq!(pairs.get(&'0').unwrap().len(), 6);
-        assert_eq!(pairs.get(&'A').unwrap().len(), 3);
-        assert_eq!(pairs.values().flatten().count(), 9);
+        assert_eq!(pairs.len(), 9);
     }
 
     #[test]
