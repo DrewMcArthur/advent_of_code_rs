@@ -73,7 +73,7 @@ impl Loc {
 
     fn maybe_antinode_loc(&self, other: &Loc) -> Result<Loc, Error> {
         let delta = self.diff(other);
-        Ok(self.add(&delta)?)
+        self.add(&delta)
     }
 }
 

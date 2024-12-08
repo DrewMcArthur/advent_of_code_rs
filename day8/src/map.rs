@@ -34,10 +34,13 @@ impl From<String> for Map {
                     .map(move |(x, c)| (*c, Loc { x, y }))
                     .filter(|(c, _)| !NON_ANTENNA_CHARS.contains(c))
             })
-            .fold(HashMap::new(), |mut map, (c, loc)| {
-                map.entry(c).or_insert(Vec::new()).push(loc);
-                map
-            });
+            .fold(
+                HashMap::new(),
+                |mut map: HashMap<char, Vec<Loc>>, (c, loc)| {
+                    map.entry(c).or_default().push(loc);
+                    map
+                },
+            );
         let width = data[0].len();
         let height = data.len();
 
@@ -61,9 +64,8 @@ impl Map {
     pub fn find_first_antinode_locs(&self) -> HashSet<Loc> {
         self.find_pairs()
             .iter()
-            .map(|p| get_first_antinode_locs(p))
+            .flat_map(get_first_antinode_locs)
             .flatten()
-            .filter_map(|l| l)
             .filter(|l| self.is_in_bounds(l))
             .collect()
     }
@@ -86,7 +88,7 @@ impl Map {
                     )
                     .iter(),
                 )
-                .map(|l| *l)
+                .copied()
                 .collect::<Vec<Loc>>()
             })
             .collect()
@@ -94,7 +96,7 @@ impl Map {
 
     /// returns a vector of pairs of locations of matching types
     fn find_pairs(&self) -> HashSet<AntennaPair> {
-        fn find_pairs(antennae: &Vec<Loc>) -> Vec<AntennaPair> {
+        fn find_pairs(antennae: &[Loc]) -> Vec<AntennaPair> {
             perms(antennae, 2)
                 .iter()
                 .filter(|locs| locs[0] != locs[1])
@@ -103,10 +105,11 @@ impl Map {
         }
 
         // we only want to find pairs for antennae of the same type
-        // so we find pairs within each list
+        // so we find pairs within each list, rather than
+        // doing the above permutation on all antennae locations
         self.antennae
             .values()
-            .flat_map(|locs| find_pairs(locs))
+            .flat_map(|antenna_list| find_pairs(antenna_list))
             .collect()
     }
 
