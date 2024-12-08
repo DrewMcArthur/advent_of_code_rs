@@ -4,6 +4,7 @@ mod equation;
 
 use equation::compute;
 pub use equation::concat;
+pub use equation::perms;
 pub use equation::Equation;
 use equation::Op;
 

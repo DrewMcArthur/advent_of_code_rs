@@ -43,14 +43,15 @@ impl Equation {
     }
 }
 
-fn perms(ops: &[Op], n: usize) -> Vec<Vec<Op>> {
+/// returns all possible n-sized vec permutations of the given vec
+pub fn perms<T: Copy>(v: &[T], n: usize) -> Vec<Vec<T>> {
     if n == 0 {
         return vec![Vec::new()];
     }
     let mut res = Vec::new();
-    for op in ops.iter() {
-        for mut sol in perms(ops, n - 1) {
-            sol.insert(0, *op);
+    for x in v.iter() {
+        for mut sol in perms(v, n - 1) {
+            sol.insert(0, *x);
             res.push(sol);
         }
     }
