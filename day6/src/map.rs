@@ -113,7 +113,10 @@ mod tests {
             (MaybeLocation { x: 0, y: 3 }, Direction::Down),
         ];
         for (loc, dir) in cases {
-            assert_eq!(map.check_in_bounds(&loc), Err(GoError::OutOfBounds(dir)));
+            assert_eq!(
+                map.check_in_bounds(&loc),
+                Err(GoError::OutOfBounds(dir))
+            );
         }
     }
 
@@ -128,7 +131,10 @@ mod tests {
         // undefined behavior now that we're storing chars by location in a hashmap
         let map = Map::from("^bc\ndef\n<gi".to_string());
         let guard_loc = map.find_guard().unwrap();
-        assert!(guard_loc == Location { x: 0, y: 0 } || guard_loc == Location { x: 0, y: 2 });
+        assert!(
+            guard_loc == Location { x: 0, y: 0 }
+                || guard_loc == Location { x: 0, y: 2 }
+        );
     }
 
     #[test]

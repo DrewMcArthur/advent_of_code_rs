@@ -42,7 +42,8 @@ fn has_xmas(chunk: &Chunk) -> bool {
 struct Chunk([[char; 3]; 3]);
 
 fn get_chunks(grid: Vec<String>) -> Vec<Chunk> {
-    let grid: Vec<Vec<char>> = grid.iter().map(|r| r.chars().collect()).collect();
+    let grid: Vec<Vec<char>> =
+        grid.iter().map(|r| r.chars().collect()).collect();
     let mut chunks: Vec<Chunk> = Vec::new();
     for i in 0..grid.len() - 2 {
         for j in 0..grid[i].len() - 2 {
@@ -58,7 +59,8 @@ fn get_chunks(grid: Vec<String>) -> Vec<Chunk> {
 }
 
 fn get_rotations(rows: Vec<String>) -> Vec<Vec<String>> {
-    let mut nineties: Vec<Vec<String>> = (0..4).map(|i| rotate_n(rows.clone(), i)).collect();
+    let mut nineties: Vec<Vec<String>> =
+        (0..4).map(|i| rotate_n(rows.clone(), i)).collect();
     let diag = rotate_diag(rows.clone());
     // let diags: Vec<Vec<String>> = (0..4).map(|i| rotate_n(diag.clone(), i)).collect();
     let rev_diag = rotate_diag(rotate_n(rows.clone(), 3));
@@ -83,7 +85,8 @@ fn rotate(rows: Vec<String>) -> Vec<String> {
     let n_rows = rows.len();
     let n_cols = rows[0].len();
     let mut rotated = Vec::with_capacity(n_cols);
-    let rows: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect()).collect();
+    let rows: Vec<Vec<char>> =
+        rows.iter().map(|r| r.chars().collect()).collect();
     for r in 0..n_cols {
         rotated.push(Vec::with_capacity(n_rows));
         for c in 0..n_rows {
@@ -95,7 +98,8 @@ fn rotate(rows: Vec<String>) -> Vec<String> {
 
 /// given a square matrix, rotate it 45 degrees clockwise
 fn rotate_diag(rows: Vec<String>) -> Vec<String> {
-    let rows: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect()).collect();
+    let rows: Vec<Vec<char>> =
+        rows.iter().map(|r| r.chars().collect()).collect();
     let side_length = 2 * rows[0].len() - 1;
     let mut rotated: Vec<Vec<char>> = Vec::with_capacity(rows.len());
     for r in 0..rows.len() {

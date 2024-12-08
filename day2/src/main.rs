@@ -7,7 +7,8 @@ fn main() {
     let reports = get_input();
     let valid_reports = reports.iter().filter(|r| is_safe(r)).count();
     println!("Valid reports: {}", valid_reports);
-    let valid_dampened_reports = reports.iter().filter(|r| is_safe_dampened(r)).count();
+    let valid_dampened_reports =
+        reports.iter().filter(|r| is_safe_dampened(r)).count();
     println!("Valid dampened reports: {}", valid_dampened_reports);
 }
 

@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use crate::{direction::Direction, error::GoError, location::Location, map::Map};
+use crate::{
+    direction::Direction, error::GoError, location::Location, map::Map,
+};
 
 const GUARD_CHARS: [char; 5] = ['^', 'v', '<', '>', 'V'];
 const CAN_MOVE: [char; 2] = ['.', 'X'];
