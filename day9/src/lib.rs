@@ -171,8 +171,8 @@ mod tests {
 
     fn to_string(mapping: &[Option<usize>]) -> String {
         let mut s = String::new();
-        for i in 0..mapping.len() {
-            match mapping[i] {
+        for i in mapping {
+            match i {
                 Some(file) => s.push_str(&format!("{}", file)),
                 None => s.push('.'),
             }
