@@ -3,7 +3,7 @@ pub mod p1 {
 
     pub fn solve(input: &str) -> usize {
         let mut drive = Drive::from(input);
-        let mapping = drive.reorder();
+        let mapping = drive.reorder_chunks();
         checksum(&mapping)
     }
 }
@@ -13,20 +13,27 @@ pub mod p2 {
 
     pub fn solve(input: &str) -> usize {
         let mut drive = Drive::from(input);
-        drive.reorder_no_split_files();
+        drive.reorder_files();
         checksum(&drive.mapping())
     }
 }
 
 struct Drive {
     files: Vec<File>,
+    size: usize,
 }
 
 #[derive(Debug, Clone)]
 struct File {
-    id: Option<usize>,
+    id: usize,
     location: usize,
     size: usize,
+}
+
+impl File {
+    fn end_index(&self) -> usize {
+        self.location + self.size - 1
+    }
 }
 
 impl From<&str> for Drive {
@@ -35,8 +42,8 @@ impl From<&str> for Drive {
             .chars()
             .filter_map(|c| c.to_digit(10).map(|x| x as usize))
             .collect();
-        let size: usize = file_sizes.iter().map(|x| *x as usize).sum();
-        let mut mapping = Vec::with_capacity(size);
+        let size = file_sizes.iter().sum();
+        let mut current_index = 0;
         let mut files = Vec::with_capacity(file_sizes.len() / 2);
         for i in 0..file_sizes.len() {
             let file_id = match i % 2 {
@@ -45,21 +52,21 @@ impl From<&str> for Drive {
                 _ => unreachable!(),
             };
             let file_size = file_sizes[i];
-            files.push(File {
-                id: file_id,
-                location: mapping.len(),
-                size: file_size,
-            });
-            for _ in 0..file_size {
-                mapping.push(file_id);
+            if file_id.is_some() {
+                files.push(File {
+                    id: file_id.unwrap(),
+                    location: current_index,
+                    size: file_size,
+                });
             }
+            current_index += file_size;
         }
-        Drive { files }
+        Drive { files, size }
     }
 }
 
 impl Drive {
-    fn reorder(&mut self) -> Vec<Option<usize>> {
+    fn reorder_chunks(&mut self) -> Vec<Option<usize>> {
         let mut mapping = self.mapping();
         let mut last_index = mapping.len() - 1;
         for i in 0..mapping.len() {
@@ -79,69 +86,81 @@ impl Drive {
     }
 
     fn mapping(&self) -> Vec<Option<usize>> {
-        let file_sizes: Vec<usize> =
-            self.files.iter().map(|f| f.size).collect();
-        let size: usize = file_sizes.iter().sum();
+        let mut files = self.files.clone();
+        files.sort_by(|a, b| a.location.cmp(&b.location));
+        let size: usize = files.iter().map(|f| f.size).sum();
         let mut mapping = Vec::with_capacity(size);
-        for i in 0..file_sizes.len() {
-            let file_id = match i % 2 {
-                0 => Some(i / 2),
-                1 => None,
-                _ => unreachable!(),
-            };
-            let file_size = file_sizes[i];
-            for _ in 0..file_size {
-                mapping.push(file_id);
+        let mut maybe_last_file: Option<&File> = None;
+        for i in 0..files.len() {
+            if let Some(last_file) = maybe_last_file {
+                let space_size = files[i].location - last_file.end_index() - 1;
+                for _ in 0..space_size {
+                    mapping.push(None);
+                }
             }
+            let file = &files[i];
+            for _ in 0..file.size {
+                mapping.push(Some(file.id))
+            }
+            maybe_last_file = Some(file);
+        }
+        while mapping.len() < self.size {
+            mapping.push(None);
         }
         mapping
     }
 
     // returns the index of the first empty space
     fn first_empty_space(&self, min_size: usize) -> Option<usize> {
-        let mut sorted = self.files.clone();
-        sorted.sort_by(|a, b| a.location.cmp(&b.location));
-        sorted
-            .iter()
-            .find(|f| f.id.is_none() && f.size >= min_size)
-            .map(|f| f.location)
-    }
+        let mut files = self.files.clone();
+        files.sort_by(|a, b| a.location.cmp(&b.location));
 
-    fn reorder_no_split_files(&mut self) {
-        let mut reversed = self.files.clone();
-        reversed.sort_by(|a, b| b.location.cmp(&a.location));
-        for f in &mut reversed {
-            if f.id.is_some() {
-                if let Some(loc) = self.first_empty_space(f.size) {
-                    if loc < f.location {
-                        self.move_file(f, loc);
+        let mut maybe_last_file: Option<File> = None;
+        // todo could rewrite with indices
+        for file in files {
+            match maybe_last_file {
+                None => {
+                    if file.location > 0 {
+                        let space_size = file.location;
+                        if space_size >= min_size {
+                            return Some(0);
+                        }
                     }
                 }
+                Some(last_file) => {
+                    let space_size = file.location - last_file.end_index() - 1;
+                    if space_size >= min_size {
+                        return Some(last_file.end_index() + 1);
+                    }
+                }
+            }
+            maybe_last_file = Some(file);
+        }
+        None
+    }
+
+    fn reorder_one_file(&mut self, index: usize) {
+        let mut f = self.files[index].clone();
+        if let Some(loc) = self.first_empty_space(f.size) {
+            if loc < f.location {
+                f.location = loc;
+                self.files[index] = f;
             }
         }
     }
 
-    fn move_file(&mut self, file: &mut File, from_loc: usize) {
-        let to_loc = file.id.unwrap() * 2;
-        self.files[from_loc] = File {
-            id: None,
-            location: to_loc,
-            size: file.size,
-        };
-        let to_space = &mut self.files[to_loc];
-        if to_space.size > file.size {
-            to_space.size -= file.size;
-            to_space.location += file.size;
+    fn reorder_files(&mut self) {
+        let n_files = self.files.len();
+        for i in (0..n_files).rev() {
+            self.reorder_one_file(i);
         }
-        file.location = to_loc;
-        self.files.insert(from_loc, file.to_owned());
     }
 }
 
 fn checksum(mapping: &[Option<usize>]) -> usize {
     mapping
         .iter()
-        .filter_map(|v| *v)
+        .map(|v| v.unwrap_or(0))
         .enumerate()
         .fold(0, |acc, (i, v)| v * i + acc)
 }
@@ -183,7 +202,7 @@ mod tests {
     #[test]
     fn test_reorder() {
         let mut d = Drive::from(INPUT);
-        let mapping = d.reorder();
+        let mapping = d.reorder_chunks();
         let s = to_string(&mapping);
         assert_eq!(s, "0099811188827773336446555566..............");
     }
@@ -194,9 +213,17 @@ mod tests {
     }
 
     #[test]
+    fn test_first_empty_space() {
+        let d = Drive::from(INPUT);
+        assert_eq!(d.first_empty_space(3), Some(2));
+        assert_eq!(d.first_empty_space(2), Some(2));
+        assert_eq!(d.first_empty_space(4), None);
+    }
+
+    #[test]
     fn test_reorder_2() {
         let mut d = Drive::from(INPUT);
-        d.reorder_no_split_files();
+        d.reorder_files();
         assert_eq!(d.to_string(), "00992111777.44.333....5555.6666.....8888..");
     }
 
