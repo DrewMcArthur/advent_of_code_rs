@@ -45,18 +45,17 @@ impl From<&str> for Drive {
         let size = file_sizes.iter().sum();
         let mut current_index = 0;
         let mut files = Vec::with_capacity(file_sizes.len() / 2);
-        for i in 0..file_sizes.len() {
+        for (i, file_size) in file_sizes.iter().enumerate() {
             let file_id = match i % 2 {
                 0 => Some(i / 2),
                 1 => None,
                 _ => unreachable!(),
             };
-            let file_size = file_sizes[i];
-            if file_id.is_some() {
+            if let Some(file_id) = file_id {
                 files.push(File {
-                    id: file_id.unwrap(),
+                    id: file_id,
                     location: current_index,
-                    size: file_size,
+                    size: *file_size,
                 });
             }
             current_index += file_size;
@@ -91,14 +90,13 @@ impl Drive {
         let size: usize = files.iter().map(|f| f.size).sum();
         let mut mapping = Vec::with_capacity(size);
         let mut maybe_last_file: Option<&File> = None;
-        for i in 0..files.len() {
+        for file in &files {
             if let Some(last_file) = maybe_last_file {
-                let space_size = files[i].location - last_file.end_index() - 1;
+                let space_size = file.location - last_file.end_index() - 1;
                 for _ in 0..space_size {
                     mapping.push(None);
                 }
             }
-            let file = &files[i];
             for _ in 0..file.size {
                 mapping.push(Some(file.id))
             }
