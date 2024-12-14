@@ -74,6 +74,10 @@ fn cost(s: Solution) -> i64 {
 }
 
 fn solve(m: &Machine) -> Option<Solution> {
+    // i did ask chatgpt for help with this function,
+    // but only for "how to solve two linear equations",
+    // since i only know how to do them on paper
+
     let a1 = m.a.x;
     let b1 = m.b.x;
     let c1 = m.p.x;
