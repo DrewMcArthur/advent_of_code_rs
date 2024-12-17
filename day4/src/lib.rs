@@ -111,8 +111,8 @@ fn rotate_diag(rows: Vec<String>) -> Vec<String> {
     rotate(rotated.iter().map(|row| row.iter().collect()).collect())
 }
 
-pub fn load() -> Vec<String> {
-    std::fs::read_to_string("input.txt")
+pub fn load(filename: &str) -> Vec<String> {
+    std::fs::read_to_string(filename)
         .unwrap()
         .lines()
         .map(String::from)
