@@ -24,13 +24,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55cc3b69f167a1ef2e161439aa98aed94e6028e5f9a59be9a6ffb47aef1651f9"
 
 [[package]]
-name = "aoc2024d4"
-version = "0.1.0"
-dependencies = [
- "regex",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -207,6 +200,14 @@ version = "0.1.0"
 name = "day3"
 version = "0.1.0"
 dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day4"
+version = "0.1.0"
+dependencies = [
+ "criterion",
  "regex",
 ]
 

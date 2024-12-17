@@ -1,7 +1,14 @@
 [package]
-name = "aoc2024d4"
+name = "day4"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 regex = "1.11.1"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "bench_solution"
+harness = false
